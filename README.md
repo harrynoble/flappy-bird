@@ -48,19 +48,19 @@ Play the game here: [https://harrynoble.github.io/flappy-bird/](https://harrynob
 
 ### Start Screen
 
-![Start Screen](screenshots/start-screen-desktop.png)
+![Start Screen](https://raw.githubusercontent.com/harrynoble/flappy-bird/main/screenshots/start-screen-desktop.png)
 
 ### Gameplay (Day Mode)
 
-![Gameplay](screenshots/gameplay-desktop.png)
+![Gameplay](https://raw.githubusercontent.com/harrynoble/flappy-bird/main/screenshots/gameplay-desktop.png)
 
 ### Game Over
 
-![Game Over](screenshots/game-over-desktop.png)
+![Game Over](https://raw.githubusercontent.com/harrynoble/flappy-bird/main/screenshots/game-over-desktop.png)
 
 ### Night Mode
 
-![Night Mode](screenshots/night-mode-desktop.png)
+![Night Mode](https://raw.githubusercontent.com/harrynoble/flappy-bird/main/screenshots/night-mode-desktop.png)
 
 ---
 
