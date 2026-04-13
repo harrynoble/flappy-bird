@@ -54,18 +54,18 @@ function calcLayout() {
   if (isPortrait) {
     // ---- PORTRAIT (phone) ----
     IW = 216; IH = 384;
-    GROUND_H = 26; PLAY_H = IH - GROUND_H; // 358
-    PIPE_W = 28; GAP_SIZE = 78;
-    PIPE_SPEED = 0.50; SPAWN_RATE = 155;
-    GRAV = 0.062; JVEL = -1.55;
+    GROUND_H = 26; PLAY_H = IH - GROUND_H;
+    PIPE_W = 24; GAP_SIZE = 72;
+    PIPE_SPEED = 1.1; SPAWN_RATE = 150;
+    GRAV = 0.16; JVEL = -2.8;
     BIRD_W = 16; BIRD_H = 12; BIRD_X = 55;
   } else {
     // ---- LANDSCAPE (desktop) ----
     IW = 480; IH = 270;
-    GROUND_H = 30; PLAY_H = IH - GROUND_H; // 240
-    PIPE_W = 34; GAP_SIZE = 94;
-    PIPE_SPEED = 0.66; SPAWN_RATE = 180;
-    GRAV = 0.075; JVEL = -1.875;
+    GROUND_H = 30; PLAY_H = IH - GROUND_H;
+    PIPE_W = 34; GAP_SIZE = 80;
+    PIPE_SPEED = 1.4; SPAWN_RATE = 100;
+    GRAV = 0.19; JVEL = -3.2;
     BIRD_W = 18; BIRD_H = 14; BIRD_X = 90;
   }
 }
@@ -297,6 +297,7 @@ function snd(type){
 // =============================================================
 let state='start',score=0,best=parseInt(localStorage.getItem('flappy8best')||'0',10);
 let frame=0,shakeX=0,shakeY=0,shakeDur=0,deathTimer=0,graceFrames=0,touchGuard=0;
+let lastTime=0,dt=1; // delta-time multiplier: 1.0 = 60fps
 
 // ---- Bird ----
 const bird={
@@ -305,9 +306,9 @@ const bird={
   reset(){this.y=PLAY_H*0.35;this.vy=0;this.flapFrame=0;},
   flap(){this.vy=JVEL;this.flapFrame=8;snd('jump');},
   update(){
-    this.vy+=GRAV;this.y+=Math.round(this.vy*2)/2;
+    this.vy+=GRAV*dt;this.y+=this.vy*dt;
     if(this.y<0){this.y=0;this.vy=0;}
-    if(this.flapFrame>0)this.flapFrame--;
+    if(this.flapFrame>0)this.flapFrame-=dt;
   },
   draw(){
     const bx=Math.round(this.x),by=Math.round(this.y);
@@ -360,7 +361,7 @@ function emitTrail(){
 }
 function updateParticles(){
   particles=particles.filter(p=>p.life>0);
-  particles.forEach(p=>{p.x-=PIPE_SPEED*0.5;p.life-=0.04;});
+  particles.forEach(p=>{p.x-=PIPE_SPEED*0.5*dt;p.life-=0.04*dt;});
 }
 function drawParticles(){
   particles.forEach(p=>{
@@ -469,7 +470,7 @@ function drawBg(){
   const cA=Math.max(0.04,0.12-themeBlend*0.06);
   ctx.fillStyle=`rgba(255,255,255,${cA})`;
   clouds.forEach(cl=>{
-    cl.x-=cl.spd;if(cl.x+cl.w<-10)cl.x=IW+10;
+    cl.x-=cl.spd*dt;if(cl.x+cl.w<-10)cl.x=IW+10;
     const cx=Math.floor(cl.x);
     ctx.fillRect(cx,cl.y,cl.w,cl.h);
     ctx.fillRect(cx+3,cl.y-2,cl.w-6,2);
@@ -481,7 +482,7 @@ function drawBg(){
   const spd=(state==='playing')?PIPE_SPEED:0.2;
   const hC=[pal.hill1,pal.hill2,pal.hill3];
   bgLayers.forEach((l,li)=>{
-    if(state!=='gameover'&&state!=='dying')l.off+=l.spd*spd;
+    if(state!=='gameover'&&state!=='dying')l.off+=l.spd*spd*dt;
     const sw=10,cnt=l.heights.length;
     ctx.fillStyle=hC[li];
     for(let i=0;i<Math.ceil(IW/sw)+2;i++){
@@ -522,7 +523,7 @@ function drawGround(){
   ctx.fillStyle=pal.dirt1;ctx.fillRect(0,gy+4,IW,GROUND_H-4);
   ctx.fillStyle=pal.dirt2;ctx.fillRect(0,gy+GROUND_H-3,IW,3);
   const spd=(state==='playing')?PIPE_SPEED:0.2;
-  if(state!=='gameover'&&state!=='dying')groundOff=(groundOff+spd)%10;
+  if(state!=='gameover'&&state!=='dying')groundOff=(groundOff+spd*dt)%10;
   ctx.fillStyle=pal.grass1;
   for(let i=-1;i<IW/10+2;i++){
     const gx=Math.floor(i*10-groundOff);
@@ -545,7 +546,7 @@ function drawHUD(){
 
 function triggerShake(d){shakeDur=d;}
 function updateShake(){
-  if(shakeDur>0){shakeDur--;shakeX=Math.floor((Math.random()-0.5)*6);shakeY=Math.floor((Math.random()-0.5)*6);}
+  if(shakeDur>0){shakeDur-=dt;shakeX=Math.floor((Math.random()-0.5)*6);shakeY=Math.floor((Math.random()-0.5)*6);}
   else{shakeX=0;shakeY=0;}
 }
 
@@ -572,6 +573,7 @@ function checkScore(){
 function startGame(){
   initAudio();state='playing';score=0;
   pipes=[];pipeTimer=-100;shakeDur=0;graceFrames=30;particles=[];
+  lastTime=0; // reset so dt doesn't spike
   bird.init();
 }
 function die(){
@@ -627,17 +629,25 @@ function drawGameOverScreen(){
 
   const sc=isPortrait?2:3;
   const sm=Math.max(1,sc-1);
-  const mid=Math.floor(PLAY_H*0.45);
 
-  // GAME OVER
-  if((frame%40)<28) drawText('GAME OVER',-1,mid-sc*16,sc,'#ff4040','rgba(0,0,0,0.4)');
+  // Percentage-based Y positions — works for both portrait and landscape
+  const y1=Math.floor(PLAY_H*0.12);  // GAME OVER
+  const y2=Math.floor(PLAY_H*0.34);  // SCORE label
+  const y3=y2+sm*6+4;                // score number
+  const y4=Math.floor(PLAY_H*0.56);  // BEST
+  const y5=y4+sm*6+6;                // RANK
+  const y6=Math.floor(PLAY_H*0.82);  // TAP OR PRESS
+  const y7=y6+sm*6+4;                // SPACE TO RETRY
 
-  // Score label + number
-  drawText('SCORE',-1,mid-sc*4,sm,'#b0b8d0');
-  drawText(score.toString(),-1,mid-sc*4+sm*7,sc,'#ffd740','rgba(0,0,0,0.3)');
+  // GAME OVER — flashing
+  if((frame%40)<28) drawText('GAME OVER',-1,y1,sc,'#ff4040','rgba(0,0,0,0.4)');
+
+  // Score
+  drawText('SCORE',-1,y2,sm,'#b0b8d0');
+  drawText(score.toString(),-1,y3,sc,'#ffd740','rgba(0,0,0,0.3)');
 
   // Best
-  drawText('BEST: '+best,-1,mid+sc*6,sm,'#ffd740','rgba(0,0,0,0.3)');
+  drawText('BEST: '+best,-1,y4,sm,'#ffd740','rgba(0,0,0,0.3)');
 
   // Rank
   let rank,rC;
@@ -646,19 +656,26 @@ function drawGameOverScreen(){
   else if(score>=15){rank='B';rC='#00e5ff';}
   else if(score>=8){rank='C';rC='#b040ff';}
   else{rank='D';rC='#ff2d7b';}
-  drawText('RANK: '+rank,-1,mid+sc*6+sm*8,sm,rC,'rgba(0,0,0,0.3)');
+  drawText('RANK: '+rank,-1,y5,sm,rC,'rgba(0,0,0,0.3)');
 
   // Restart prompt
   if((frame%50)<36){
-    drawText('TAP OR PRESS',-1,PLAY_H-sm*14,sm,'#ffffff','rgba(0,0,0,0.3)');
-    drawText('SPACE TO RETRY',-1,PLAY_H-sm*7,sm,'#a0a8c0');
+    drawText('TAP OR PRESS',-1,y6,sm,'#ffffff','rgba(0,0,0,0.3)');
+    drawText('SPACE TO RETRY',-1,y7,sm,'#a0a8c0');
   }
 }
 
 // =============================================================
 //  MAIN LOOP
 // =============================================================
-function loop(){
+function loop(timestamp){
+  // ---- Delta-time: normalize to 60fps ----
+  if(!lastTime)lastTime=timestamp;
+  const elapsed=timestamp-lastTime;
+  lastTime=timestamp;
+  dt=Math.min(elapsed/16.667,3); // 16.667ms = 60fps, cap at 3x to avoid spiral
+  if(dt<=0)dt=1;
+
   frame++;
   updateShake();
   updatePalette();
@@ -671,16 +688,16 @@ function loop(){
   drawBg();
 
   if(state==='start'){
-    bird.init(); // ensure bird has correct dimensions
+    bird.init();
     drawGround();drawStartScreen();
   }
 
   if(state==='playing'){
     bird.update();
     emitTrail();updateParticles();
-    pipeTimer++;
+    pipeTimer+=dt;
     if(pipeTimer>=SPAWN_RATE){spawnPipe();pipeTimer=0;}
-    pipes.forEach(p=>p.x-=PIPE_SPEED);
+    pipes.forEach(p=>p.x-=PIPE_SPEED*dt);
     pipes=pipes.filter(p=>p.x>-PIPE_W-10);
     for(const p of pipes){
       drawPipe(p.x,0,PIPE_W,p.topH,true);
@@ -691,23 +708,23 @@ function loop(){
     bird.draw();
     drawHUD();
     if(checkHit()&&graceFrames<=0)die();
-    if(graceFrames>0)graceFrames--;
+    if(graceFrames>0)graceFrames-=dt;
     checkScore();
   }
 
   if(state==='dying'){
-    deathTimer++;
+    deathTimer+=dt;
     updateParticles();
     for(const p of pipes){
       drawPipe(p.x,0,PIPE_W,p.topH,true);
       drawPipe(p.x,p.topH+GAP_SIZE,PIPE_W,PLAY_H-p.topH-GAP_SIZE,false);
     }
     drawGround();drawParticles();
-    bird.vy+=GRAV;bird.y+=bird.vy;
+    bird.vy+=GRAV*dt;bird.y+=bird.vy*dt;
     if(bird.y+bird.h>=PLAY_H){bird.y=PLAY_H-bird.h;bird.vy=0;}
     bird.draw();drawHUD();
     if(deathTimer<4){
-      ctx.fillStyle=`rgba(255,255,255,${0.5-deathTimer*0.12})`;
+      ctx.fillStyle=`rgba(255,255,255,${0.5-(deathTimer)*0.12})`;
       ctx.fillRect(0,0,IW,IH);
     }
     if(deathTimer>40)state='gameover';
@@ -737,7 +754,7 @@ function loop(){
 // ---- Init ----
 applySize();
 bird.init();
-loop();
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
