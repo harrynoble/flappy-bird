@@ -22,6 +22,8 @@ The project was built as a single-file web application to demonstrate what can b
 
 - **Mobile Support** -- Touch input is fully supported. The viewport is locked to prevent pinch-zoom and pull-to-refresh. A touch guard prevents the common mobile bug where `touchstart` and `click` both fire from a single tap.
 
+- **Delta-Time Physics** -- Game speed is consistent across all devices regardless of frame rate. A 30fps preview and a 144fps monitor run at the exact same perceived speed.
+
 - **8-Bit Sound Effects** -- Jump chirps, score dings, collision noise, and a game-over melody are all synthesized at runtime using the Web Audio API with square-wave oscillators. No audio files are loaded.
 
 - **Score Tracking** -- The current score is displayed during gameplay. The best score is persisted to `localStorage` and shown on the start and game over screens.
@@ -38,9 +40,7 @@ The project was built as a single-file web application to demonstrate what can b
 
 ## Demo
 
-> Live demo link: `https://your-username.github.io/flappy-bird/`
-
-*(Replace with your actual deployment URL after hosting.)*
+Play the game here: [https://harrynoble.github.io/flappy-bird/](https://harrynoble.github.io/flappy-bird/)
 
 ---
 
@@ -48,33 +48,19 @@ The project was built as a single-file web application to demonstrate what can b
 
 ### Start Screen
 
-```
-[ placeholder -- add a screenshot of the start screen here ]
-```
+![Start Screen](screenshots/start-screen-desktop.png)
 
 ### Gameplay (Day Mode)
 
-```
-[ placeholder -- add a screenshot or GIF of active gameplay in day mode ]
-```
+![Gameplay](screenshots/gameplay-desktop.png)
 
-### Gameplay (Night Mode)
+### Game Over
 
-```
-[ placeholder -- add a screenshot or GIF of active gameplay in night mode ]
-```
+![Game Over](screenshots/game-over-desktop.png)
 
-### Game Over Screen
+### Night Mode
 
-```
-[ placeholder -- add a screenshot of the game over screen with score and rank ]
-```
-
-### Mobile (Portrait)
-
-```
-[ placeholder -- add a screenshot of the game running on a phone in portrait ]
-```
+![Night Mode](screenshots/night-mode-desktop.png)
 
 ---
 
@@ -107,10 +93,10 @@ No external libraries, frameworks, CDNs, or images are used.
 
 ## How to Run
 
-1. **Download** the project:
+1. **Clone** the repository:
 
    ```bash
-   git clone https://github.com/your-username/flappy-bird.git
+   git clone https://github.com/harrynoble/flappy-bird.git
    cd flappy-bird
    ```
 
@@ -132,9 +118,14 @@ No external libraries, frameworks, CDNs, or images are used.
 
 ```
 flappy-bird/
-    index.html      # The entire game -- markup, styles, and logic in one file
-    README.md        # This file
-    LICENSE          # MIT License
+    index.html                            # The entire game -- markup, styles, and logic in one file
+    README.md                             # This file
+    LICENSE                               # MIT License
+    screenshots/
+        start-screen-desktop.png          # Start screen (day mode)
+        gameplay-desktop.png              # Active gameplay with pipes
+        game-over-desktop.png             # Game over screen with score and rank
+        night-mode-desktop.png            # Gameplay in night mode
 ```
 
 The single-file architecture is intentional. All CSS is inlined in a `<style>` block and all JavaScript is inlined in a `<script>` block. This makes the project trivially portable: copy one file and it works anywhere.
@@ -155,7 +146,7 @@ The JavaScript is organized into clearly commented sections:
 | Background             | Sky, stars, sun/moon, clouds, parallax hills, bushes |
 | Ground                 | Scrolling grass and dirt with texture details         |
 | Screens                | Start screen, game over screen with rank system      |
-| Main Loop              | `requestAnimationFrame` loop tying everything together |
+| Main Loop              | Delta-time `requestAnimationFrame` loop              |
 
 ---
 
@@ -183,12 +174,9 @@ The following features could be added to extend the project:
 
 ## Author
 
-**Your Name**
+**Harry Noble**
 
-- GitHub: [github.com/your-username](https://github.com/your-username)
-- Website: [your-website.com](https://your-website.com)
-
-*(Replace with your actual information.)*
+- GitHub: [github.com/harrynoble](https://github.com/harrynoble)
 
 ---
 
@@ -199,7 +187,7 @@ This project is licensed under the **MIT License**.
 ```
 MIT License
 
-Copyright (c) 2025 Your Name
+Copyright (c) 2025 Harry Noble
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
