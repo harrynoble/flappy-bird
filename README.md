@@ -46,25 +46,25 @@ Play the game here: [https://harrynoble.github.io/flappy-bird/](https://harrynob
 
 ### Start Screen -- Character Select
 
-![Start Screen](https://raw.githubusercontent.com/harrynoble/flappy-bird/main/screenshots/start-screen-desktop.png)
+![Start Screen](./screenshots/start-screen-desktop.png)
 
 ### Playable Characters
 
 | Cardinal | Penguin | Parrot | Owl |
 |----------|---------|--------|-----|
-| ![Cardinal](https://raw.githubusercontent.com/harrynoble/flappy-bird/main/screenshots/start-cardinal.png) | ![Penguin](https://raw.githubusercontent.com/harrynoble/flappy-bird/main/screenshots/start-penguin.png) | ![Parrot](https://raw.githubusercontent.com/harrynoble/flappy-bird/main/screenshots/start-parrot.png) | ![Owl](https://raw.githubusercontent.com/harrynoble/flappy-bird/main/screenshots/start-owl.png) |
+| ![Cardinal](./screenshots/start-cardinal.png) | ![Penguin](./screenshots/start-penguin.png) | ![Parrot](./screenshots/start-parrot.png) | ![Owl](./screenshots/start-owl.png) |
 
 ### Gameplay (Day Mode)
 
-![Gameplay](https://raw.githubusercontent.com/harrynoble/flappy-bird/main/screenshots/gameplay-desktop.png)
+![Gameplay](./screenshots/gameplay-desktop.png)
 
 ### Game Over
 
-![Game Over](https://raw.githubusercontent.com/harrynoble/flappy-bird/main/screenshots/game-over-desktop.png)
+![Game Over](./screenshots/game-over-desktop.png)
 
 ### Night Mode
 
-![Night Mode](https://raw.githubusercontent.com/harrynoble/flappy-bird/main/screenshots/night-mode-desktop.png)
+![Night Mode](./screenshots/night-mode-desktop.png)
 
 ---
 
